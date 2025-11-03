@@ -1,0 +1,11 @@
+# Compiled executables
+library_management
+
+# Object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app

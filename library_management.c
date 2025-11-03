@@ -6,7 +6,6 @@ struct Book {
     int id;                 // 도서 번호
     char title[100];        // 제목
     char author[50];        // 저자
-    int isAvailable;        // 대출 가능 여부 (1: 가능, 0: 대출 중)
 };
 
 // 전역 변수
@@ -16,7 +15,6 @@ int bookCount = 0;          // 현재 저장된 도서 수
 // 함수 선언
 void registerBook();
 void searchBook();
-void borrowOrReturnBook();
 void displayAllBooks();
 void clearInputBuffer();
 
@@ -31,8 +29,7 @@ int main() {
         printf("\n========== 메뉴 ==========\n");
         printf("1. 도서 등록\n");
         printf("2. 도서 검색\n");
-        printf("3. 대출/반납 처리\n");
-        printf("4. 전체 목록 출력\n");
+        printf("3. 전체 목록 출력\n");
         printf("0. 종료\n");
         printf("========================\n");
         printf("선택: ");
@@ -48,9 +45,6 @@ int main() {
                 searchBook();
                 break;
             case 3:
-                borrowOrReturnBook();
-                break;
-            case 4:
                 displayAllBooks();
                 break;
             case 0:
@@ -91,9 +85,6 @@ void registerBook() {
     fgets(library[bookCount].author, sizeof(library[bookCount].author), stdin);
     library[bookCount].author[strcspn(library[bookCount].author, "\n")] = 0;  // 개행 문자 제거
 
-    // 대출 가능으로 초기화
-    library[bookCount].isAvailable = 1;
-
     printf("\n도서가 등록되었습니다! (도서 번호: %d)\n", library[bookCount].id);
 
     bookCount++;
@@ -122,7 +113,6 @@ void searchBook() {
             printf("도서 번호: %d\n", p->id);
             printf("제목: %s\n", p->title);
             printf("저자: %s\n", p->author);
-            printf("상태: %s\n", p->isAvailable ? "대출 가능" : "대출 중");
             printf("---------------------\n");
 
             found = 1;
@@ -135,69 +125,6 @@ void searchBook() {
     }
 }
 
-// 대출/반납 처리 함수 (포인터 활용)
-void borrowOrReturnBook() {
-    if (bookCount == 0) {
-        printf("\n등록된 도서가 없습니다.\n");
-        return;
-    }
-
-    int searchId;
-    printf("\n========== 대출/반납 처리 ==========\n");
-    printf("도서 번호: ");
-    scanf("%d", &searchId);
-    clearInputBuffer();
-
-    int found = 0;
-    for (int i = 0; i < bookCount; i++) {
-        if (library[i].id == searchId) {
-            // 포인터에 도서 주소 저장
-            struct Book *p = &library[i];
-
-            printf("\n----- 도서 정보 -----\n");
-            printf("제목: %s\n", p->title);
-            printf("저자: %s\n", p->author);
-            printf("현재 상태: %s\n", p->isAvailable ? "대출 가능" : "대출 중");
-            printf("---------------------\n");
-
-            if (p->isAvailable) {
-                // 대출 처리
-                printf("\n이 도서를 대출하시겠습니까? (1: 예, 0: 아니오): ");
-                int confirm;
-                scanf("%d", &confirm);
-                clearInputBuffer();
-
-                if (confirm == 1) {
-                    p->isAvailable = 0;
-                    printf("\n대출이 완료되었습니다.\n");
-                } else {
-                    printf("\n대출을 취소했습니다.\n");
-                }
-            } else {
-                // 반납 처리
-                printf("\n이 도서를 반납하시겠습니까? (1: 예, 0: 아니오): ");
-                int confirm;
-                scanf("%d", &confirm);
-                clearInputBuffer();
-
-                if (confirm == 1) {
-                    p->isAvailable = 1;
-                    printf("\n반납이 완료되었습니다.\n");
-                } else {
-                    printf("\n반납을 취소했습니다.\n");
-                }
-            }
-
-            found = 1;
-            break;
-        }
-    }
-
-    if (!found) {
-        printf("\n도서 번호 %d를 찾을 수 없습니다.\n", searchId);
-    }
-}
-
 // 전체 목록 출력 함수
 void displayAllBooks() {
     if (bookCount == 0) {
@@ -206,17 +133,16 @@ void displayAllBooks() {
     }
 
     printf("\n========== 전체 도서 목록 ==========\n");
-    printf("%-5s %-30s %-20s %-10s\n", "번호", "제목", "저자", "상태");
-    printf("---------------------------------------------------------------\n");
+    printf("%-5s %-30s %-20s\n", "번호", "제목", "저자");
+    printf("-------------------------------------------------------\n");
 
     for (int i = 0; i < bookCount; i++) {
-        printf("%-5d %-30s %-20s %-10s\n",
+        printf("%-5d %-30s %-20s\n",
                library[i].id,
                library[i].title,
-               library[i].author,
-               library[i].isAvailable ? "대출 가능" : "대출 중");
+               library[i].author);
     }
 
-    printf("---------------------------------------------------------------\n");
+    printf("-------------------------------------------------------\n");
     printf("총 %d권의 도서가 등록되어 있습니다.\n", bookCount);
 }
